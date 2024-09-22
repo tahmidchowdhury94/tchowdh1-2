@@ -1,0 +1,81 @@
+---
+title: "QMM Assignment 2"
+author: "Tahmidur Rahman Chowdhury ( 811310166)"
+date: "2024-09-22"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Load the lpSolve package
+library(lpSolve)
+
+# Coefficients of the objective function (profits per unit)
+profit_coeffs <- c(420, 420, 420, 360, 360, 360, 300, 300, 300)
+
+# Coefficients matrix for constraints (9 decision variables in total)
+# Each row represents a constraint, each column represents a variable (x11, x12, x13, ..., x33)
+constraint_matrix <- matrix(c(
+  # Production capacity constraints
+  1, 1, 1, 0, 0, 0, 0, 0, 0,    # Plant 1 (capacity <= 750 units)
+  0, 0, 0, 1, 1, 1, 0, 0, 0,    # Plant 2 (capacity <= 900 units)
+  0, 0, 0, 0, 0, 0, 1, 1, 1,    # Plant 3 (capacity <= 450 units)
+  
+  # Storage space constraints
+  20, 0, 0, 15, 0, 0, 12, 0, 0, # Plant 1 (storage <= 13000 sqft)
+  0, 20, 0, 0, 15, 0, 0, 12, 0, # Plant 2 (storage <= 12000 sqft)
+  0, 0, 20, 0, 0, 15, 0, 0, 12, # Plant 3 (storage <= 5000 sqft)
+  
+  # Sales demand constraints
+  1, 1, 1, 0, 0, 0, 0, 0, 0,    # Large size demand (<= 900 units)
+  0, 0, 0, 1, 1, 1, 0, 0, 0,    # Medium size demand (<= 1200 units)
+  0, 0, 0, 0, 0, 0, 1, 1, 1     # Small size demand (<= 750 units)
+), nrow = 9, byrow = TRUE)
+
+# Right-hand side of the constraints
+rhs <- c(750, 900, 450, 13000, 12000, 5000, 900, 1200, 750)
+
+# Direction of the constraints
+# All are <= constraints
+constraint_dir <- rep("<=", 9)
+
+# Solve the linear programming problem
+solution <- lp(
+  direction = "max",               # Maximize profit
+  objective.in = profit_coeffs,    # Profit coefficients
+  const.mat = constraint_matrix,   # Constraint matrix
+  const.dir = constraint_dir,      # Constraint directions
+  const.rhs = rhs,                 # Right-hand side values
+  all.int = TRUE                   # Ensure integer values
+)
+
+# Output the solution
+print("Optimal Production Plan:")
+print(solution$solution)
+
+print("Maximum Profit:")
+print(solution$objval)
+
+#Explanation:
+#Objective Function: profit_coeffs represents the coefficients for the profit (420, 360, and 300) for large, medium, and small units at the three plants.
+
+#Constraints: constraint_matrix contains the coefficients for the constraints:
+
+#First 3 rows represent production capacity constraints for the three plants.
+#Next 3 rows represent storage constraints.
+#Last 3 rows represent sales demand constraints.
+#Right-Hand Side (rhs): This represents the upper bounds of production capacity, storage, and demand.
+
+#Constraint Directions: All constraints are less than or equal to (<=).
+
+#Solve: The lp function solves the linear program. The solution gives the optimal production plan and the maximum profit.
+
+#Output:
+#solution gives the number of units of each size (large, medium, small) to produce at each plant.
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
